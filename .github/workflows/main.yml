@@ -34,7 +34,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: project
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Build web application
         working-directory: project
