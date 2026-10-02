@@ -45,11 +45,40 @@ jobs:
 
       - name: Build web application
         working-directory: project
-        run: npm run build
+        run: |
+          npm run build
+          echo "BUILD OUTPUT:"
+          ls -la
+          echo "DIST:"
+          ls -la dist || true
+
+      - name: Prepare Capacitor web directory
+        working-directory: project
+        run: |
+          rm -rf www
+          if [ -d "dist" ]; then
+            cp -R dist www
+          elif [ -d "build" ]; then
+            cp -R build www
+          else
+            echo "ERROR: dist veya build klasoru bulunamadi"
+            exit 1
+          fi
+          echo "WWW CONTENTS:"
+          ls -la www
+          test -f www/index.html
 
       - name: Sync Capacitor Android
         working-directory: project
         run: npx cap sync android
+
+      - name: Create Android project if missing
+        working-directory: project
+        run: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+          npx cap sync android
 
       - name: Make Gradle executable
         working-directory: project/android
