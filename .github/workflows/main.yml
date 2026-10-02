@@ -16,6 +16,7 @@ jobs:
 
       - name: Extract project ZIP
         run: |
+          rm -rf project
           mkdir -p project
           unzip -o "do-it (1).zip" -d project
           echo "PROJECT CONTENTS:"
@@ -35,6 +36,12 @@ jobs:
       - name: Install dependencies
         working-directory: project
         run: npm install --legacy-peer-deps
+
+      - name: Install Capacitor
+        working-directory: project
+        run: |
+          npm install --save-dev @capacitor/cli --legacy-peer-deps
+          npm install @capacitor/core @capacitor/android --legacy-peer-deps
 
       - name: Build web application
         working-directory: project
