@@ -11,23 +11,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Extract project ZIP
+      - name: Extract ZIP
         run: |
           rm -rf project
-          mkdir -p project
+          mkdir project
           unzip -o "do-it (1).zip" -d project
-          echo "PROJECT CONTENTS:"
           ls -la project
 
-      - name: Setup Node.js
+      - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Setup Java 21
+      - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -35,63 +34,60 @@ jobs:
 
       - name: Install dependencies
         working-directory: project
-        run: npm install --legacy-peer-deps
-
-      - name: Install Capacitor
-        working-directory: project
         run: |
-          npm install --save-dev @capacitor/cli --legacy-peer-deps
+          npm install --legacy-peer-deps
           npm install @capacitor/core @capacitor/android --legacy-peer-deps
+          npm install -D @capacitor/cli --legacy-peer-deps
 
-      - name: Build web application
+      - name: Build web app
         working-directory: project
         run: npm run build
 
-      - name: Prepare web directory
+      - name: Prepare Capacitor
         working-directory: project
         run: |
-          rm -rf www
+          rm -rf www android
 
           if [ -d "dist" ]; then
             cp -R dist www
           elif [ -d "build" ]; then
             cp -R build www
           else
-            echo "ERROR: Web build klasoru bulunamadi."
+            echo "WEB BUILD OUTPUT NOT FOUND"
+            find . -maxdepth 2 -type f -name "index.html" -print
             exit 1
           fi
 
-          echo "WWW CONTENTS:"
-          ls -la www
           test -f www/index.html
 
-      - name: Recreate Android project
+          cat > capacitor.config.json <<'EOF'
+          {
+            "appId": "com.trendman.scanner",
+            "appName": "TREND-MAN",
+            "webDir": "www"
+          }
+          EOF
+
+          echo "CAPACITOR CONFIG:"
+          cat capacitor.config.json
+
+      - name: Create Android app
         working-directory: project
         run: |
-          rm -rf android
           npx cap add android
           npx cap sync android
+          test -f android/gradlew
+          chmod +x android/gradlew
 
-          echo "ANDROID CONTENTS:"
-          ls -la android
-
-          if [ ! -f "android/gradlew" ]; then
-            echo "ERROR: android/gradlew olusturulamadi."
-            exit 1
-          fi
-
-      - name: Make Gradle executable
-        working-directory: project
-        run: chmod +x android/gradlew
-
-      - name: Build debug APK
+      - name: Build APK
         working-directory: project/android
-        run: ./gradlew assembleDebug --stacktrace
-
-      - name: Find APK
         run: |
-          echo "APK FILES:"
-          find project/android -type f -name "*.apk" -print
+          ./gradlew assembleDebug --stacktrace
+
+      - name: Locate APK
+        run: |
+          echo "APK RESULTS:"
+          find project -type f -name "*.apk" -print
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
