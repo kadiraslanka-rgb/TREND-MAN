@@ -45,44 +45,44 @@ jobs:
 
       - name: Build web application
         working-directory: project
-        run: |
-          npm run build
-          echo "BUILD OUTPUT:"
-          ls -la
-          echo "DIST:"
-          ls -la dist || true
+        run: npm run build
 
-      - name: Prepare Capacitor web directory
+      - name: Prepare web directory
         working-directory: project
         run: |
           rm -rf www
+
           if [ -d "dist" ]; then
             cp -R dist www
           elif [ -d "build" ]; then
             cp -R build www
           else
-            echo "ERROR: dist veya build klasoru bulunamadi"
+            echo "ERROR: Web build klasoru bulunamadi."
             exit 1
           fi
+
           echo "WWW CONTENTS:"
           ls -la www
           test -f www/index.html
 
-      - name: Sync Capacitor Android
-        working-directory: project
-        run: npx cap sync android
-
-      - name: Create Android project if missing
+      - name: Recreate Android project
         working-directory: project
         run: |
-          if [ ! -d "android" ]; then
-            npx cap add android
-          fi
+          rm -rf android
+          npx cap add android
           npx cap sync android
 
+          echo "ANDROID CONTENTS:"
+          ls -la android
+
+          if [ ! -f "android/gradlew" ]; then
+            echo "ERROR: android/gradlew olusturulamadi."
+            exit 1
+          fi
+
       - name: Make Gradle executable
-        working-directory: project/android
-        run: chmod +x gradlew
+        working-directory: project
+        run: chmod +x android/gradlew
 
       - name: Build debug APK
         working-directory: project/android
