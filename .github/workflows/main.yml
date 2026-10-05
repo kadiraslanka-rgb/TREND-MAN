@@ -31,6 +31,10 @@ jobs:
       - name: Extract project
         run: unzip -q tradingly-project.zip -d project
 
+      - name: Fix notification channel constant
+        run: |
+          sed -i 's/getImportance()==0/getImportance()==NotificationManager.IMPORTANCE_NONE/g' project/android/app/src/main/java/com/trendscanner/bybit/NotificationBridgePlugin.java
+
       - name: Prepare application
         working-directory: project
         run: |
