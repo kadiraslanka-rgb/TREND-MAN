@@ -1,0 +1,20 @@
+import type { CapacitorConfig } from '@capacitor/cli';
+
+const config: CapacitorConfig = {
+  appId: 'com.trendscanner.bybit',
+  appName: 'TRADINGLY',
+  webDir: 'dist',
+  plugins: {
+    LocalNotifications: {
+      smallIcon: 'ic_stat_name',
+      iconColor: '#10B981',
+      sound: 'beep.wav',
+    },
+  },
+  server: {
+    androidScheme: 'https',
+    cleartext: true,
+  },
+};
+
+export default config;

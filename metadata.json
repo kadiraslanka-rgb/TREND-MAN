@@ -1,0 +1,6 @@
+{
+  "name": "Bybit Major Trend Scanner",
+  "description": "Bybit USDT Perpetual çiftlerinde uzun süreli düşen majör trend çizgilerini ve 3+ tepe temaslarını tarayan profesyonel analiz aracı.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
